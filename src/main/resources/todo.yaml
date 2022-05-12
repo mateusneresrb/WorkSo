@@ -1,0 +1,11 @@
+//TODO - CRIAR PARAMETROS E SUPORTE A ELE;
+
+
+* Suportar apenas arquivos txt;
+<Nome do usuário>;<nome do processo>;<Id do processo>;<prioridade>;<tempo de submissão>;<tempo de execução>
+
+//PARAMETROS:
+  -p <arquivo> *Informar se não encontrar arquivo ou dados nele*
+  -s <lotes:interativo> (default = lotes)
+  -a <algoritmo> [fifo, sjf, rr, garantido, loteria] (default lotes = fifo, default interativo = rr)
+
