@@ -142,24 +142,14 @@ final public class AutoRunFromConsole {
      *                         people start the program from console manually.
      */
     private static void startExecutableInConsole(final String executableName, final boolean stayOpenAfterEnd) {
-
         String launchString = null;
 
-        switch (getOsType()) {
-            case UNDETERMINED:
-                break;
-            case WINDOWS:
-                if (stayOpenAfterEnd) {
-                    launchString = "cmd /c start cmd /k java -jar \"" + executableName + "\""; // No, using /k directly here DOES NOT do the trick.
-                } else {
-                    launchString = "cmd /c start java -jar \"" + executableName + "\"";
-                }
-                break;
-            case LINUX:
-                break;
-            case MACOS:
-                // launchString="/usr/bin/open -a Terminal /path/to/the/executable";
-                break;
+        if(getOsType() == OSType.WINDOWS) {
+            if (stayOpenAfterEnd) {
+                launchString = "cmd /c start cmd /k java -jar \"" + executableName + "\""; // No, using /k directly here DOES NOT do the trick.
+            } else {
+                launchString = "cmd /c start java -jar \"" + executableName + "\"";
+            }
         }
 
         if (launchString == null) {
@@ -189,7 +179,6 @@ final public class AutoRunFromConsole {
      * should be true. Use isRunFromIDE or other means additionally.
      */
     private static boolean isRunningInConsole() {
-
         return System.console() != null;
     }
 
@@ -265,30 +254,6 @@ final public class AutoRunFromConsole {
     public static void main(final String[] args) {
 
         AutoRunFromConsole.runYourselfInConsole(true);
-        printEnvironmentInfo();
     }
-
-
-    /**
-     * for debugging purposes
-     */
-    public static void printEnvironmentInfo() {
-
-
-        System.out.println("\n\n\n\n-------------------------- System.getProperties() --------------------------");
-        final Properties properties = System.getProperties();
-        for (final Map.Entry<Object, Object> entry : properties.entrySet()) {
-            System.out.println(entry);
-        }
-
-        System.out.println("\n\n\n\n----------------------------- System.getenv() ------------------------------");
-        final Map<String, String> env = System.getenv();
-        for (final Map.Entry<String, String> entry : env.entrySet()) {
-            System.out.println(entry);
-        }
-
-        System.out.print("\n\n\n\n");
-    }
-
 
 }

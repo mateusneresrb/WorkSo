@@ -7,6 +7,7 @@ public class Main {
 
     public static void main(String[] args) {
         menu();
+
         if (args.length < 2) {
             Logger.error("Você não informou o número mínimo de argumentos.");
             System.out.println("Use: ");
