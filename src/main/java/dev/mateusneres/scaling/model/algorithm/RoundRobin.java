@@ -14,8 +14,8 @@ public class RoundRobin extends Algorithm {
 		    int n,i,quantum,count=0,temp,sq=0;  
 			float tme=0,tmr=0;  
 			
-				int[]bt = new int[10];  
-				int[]wt = new int[10];  
+				int[]bt = new int[10]; burst time 
+				int[]wt = new int[10];   wainting time
 				int[]tat = new int[10];  
 				int[]rem_bt = new int[10];  
 			
