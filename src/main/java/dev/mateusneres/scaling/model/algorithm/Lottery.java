@@ -4,21 +4,25 @@ import dev.mateusneres.scaling.model.Algorithm;
 import dev.mateusneres.scaling.model.Process;
 import dev.mateusneres.scaling.types.AlgorithmType;
 import dev.mateusneres.scaling.types.SystemType;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
 
 /*
- * BATCH ALGORITHM
+ * INTERACTIVE ALGORITHM
  * */
-public class Fifo extends Algorithm {
+@Getter
+@Setter
+public class Lottery extends Algorithm {
 
-    public Fifo(AlgorithmType algorithmType, SystemType systemType, List<Process> processList) {
+    private int quantum;
+
+    public Lottery(AlgorithmType algorithmType, SystemType systemType, List<Process> processList) {
         super(algorithmType, systemType, processList);
     }
 
-
     /*
-     * FIFO ALGORITHM
-     *
+     *  LOTERRY ALGORITHM
      * */
 }

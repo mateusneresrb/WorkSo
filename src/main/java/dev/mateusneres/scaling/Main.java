@@ -5,7 +5,14 @@ import dev.mateusneres.scaling.utils.Logger;
 
 public class Main {
 
+    /*
+    * Instituição: Anhanguera Educacional
+    * Alunos: Mateus Neres, Leonardo de Araujo
+    * Professor: Gabriel | Disciplina: Sistemas Operacionais
+    * */
+
     public static void main(String[] args) {
+
         if (args.length < 2) {
             Logger.error("Você não informou o número mínimo de argumentos.");
             Logger.error("Argumentos disponíveis: -p <arquivo> -a <algoritmo> -s <lotes|interativo>");
@@ -15,14 +22,4 @@ public class Main {
         Menu.init(args);
     }
 
-
 }
-
-//ALGORITMOS:
-// - FIFO (SO LOTE)
-// - SJF (SO LOTE)
-// - RR (SO INTERATIVO) [ROUND ROBIN]
-// - GARANTIDO (SO INTERATIVO)
-// - LOTERIA (SO INTERATIVO)
-
-//DEFAULT = FIFO - LOTES | ROUND-ROBIN = INTERATIVO

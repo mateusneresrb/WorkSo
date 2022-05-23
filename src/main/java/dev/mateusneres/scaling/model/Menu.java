@@ -1,16 +1,25 @@
 package dev.mateusneres.scaling.model;
 
+import dev.mateusneres.scaling.controllers.ProcessController;
+import dev.mateusneres.scaling.controllers.ScallerController;
 import dev.mateusneres.scaling.types.AlgorithmType;
 import dev.mateusneres.scaling.types.SystemType;
 import dev.mateusneres.scaling.utils.ConsoleColors;
 import dev.mateusneres.scaling.utils.FileUtil;
 import dev.mateusneres.scaling.utils.Logger;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
+@Data
+@AllArgsConstructor
 public class Menu {
+
+    private String[] args;
+
 
     public static void init(String[] args) {
         List<String> argsList = Arrays.asList(args);
@@ -105,9 +114,43 @@ public class Menu {
             algorithmType = algorithmSelectType;
         }
 
+        int quantum = 50; // in milliseconds;
+        if (argsList.contains("-q")) {
+            int quantumSelectedPos = (argsList.indexOf("-q") + 1);
+            if (quantumSelectedPos > argsList.size()) {
+                Logger.error("Você precisa informar o quantum após o argumento '-q' sendo um número inteiro. '-q <quantum>'");
+                System.exit(1);
+                return;
+            }
+            try {
+                quantum = Integer.parseInt(argsList.get(quantumSelectedPos));
+            } catch (NumberFormatException e) {
+                Logger.error("O quantum precisa ser um número!");
+                System.exit(1);
+                return;
+            }
+        }
+
+        boolean steps = false;
+        if (argsList.contains("-steps")) steps = true;
+
+        /*Load Process*/
+        List<Process> processList = ProcessController.getProcess(fileNameUtil.getAllLines());
+        if (processList.isEmpty()) {
+            Logger.error("Não foi possível carregar os processos no arquivo: " + fileName);
+            Logger.error("Verifique se o documento está estruturado corretamente!");
+            System.exit(1);
+            return;
+        }
+
+        Scaller scaller = new Scaller(fileNameUtil.getFile(), steps);
+        new ScallerController(scaller, algorithmType, systemType, quantum, processList).start();
+
+/*        System.out.println("STEPS: " + steps);
+        System.out.println("QUANTUM: " + quantum);
         System.out.println("ARQUIVO: " + fileName);
         System.out.println("SISTEMA: " + systemType);
-        System.out.println("ALGORITMO: " + algorithmType);
+        System.out.println("ALGORITMO: " + algorithmType);*/
     }
 
 
