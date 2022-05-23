@@ -1,5 +1,7 @@
 package dev.mateusneres.scaling.model;
 
+import dev.mateusneres.scaling.types.AlgorithmType;
+import dev.mateusneres.scaling.types.SystemType;
 import dev.mateusneres.scaling.utils.ConsoleColors;
 import dev.mateusneres.scaling.utils.FileUtil;
 import dev.mateusneres.scaling.utils.Logger;
@@ -50,14 +52,62 @@ public class Menu {
         }
 
         FileUtil fileNameUtil = new FileUtil(fileName);
-        if (!fileNameUtil.isExists() || !fileNameUtil.isEmpty()) {
+        if (!fileNameUtil.isExists() || fileNameUtil.isEmpty()) {
             Logger.error("O arquivo informado não existe ou está vázio!");
             System.exit(1);
             return;
         }
 
+        SystemType systemType = SystemType.BATCH;
+        if (argsList.contains("-s")) {
 
-        argsList.indexOf("-p");
+            int systemSelectedPos = (argsList.indexOf("-s") + 1);
+            if (systemSelectedPos > argsList.size()) {
+                Logger.error("Você precisa informar o nome do sistema após o argumento '-s'");
+                System.exit(1);
+                return;
+            }
+
+            String systemSelect = argsList.get(systemSelectedPos);
+            if (!SystemType.isValidSystem(systemSelect)) {
+                Logger.error("Você informou um sistema inválido! Use: BATCH OU INTERATIVO");
+                System.exit(1);
+                return;
+            }
+
+            systemType = SystemType.valueOf(systemSelect.toUpperCase(Locale.ROOT));
+        }
+
+        AlgorithmType algorithmType = AlgorithmType.getDefaultBySystem(systemType);
+
+        if (argsList.contains("-a")) {
+            int algorithmSelectedPos = (argsList.indexOf("-a") + 1);
+            if (algorithmSelectedPos > argsList.size()) {
+                Logger.error("Você precisa informar o nome do algoritmo após o argumento '-a'");
+                System.exit(1);
+                return;
+            }
+
+            String algorithmSelect = argsList.get(algorithmSelectedPos);
+            if (!AlgorithmType.isValidAlgorithm(algorithmSelect)) {
+                Logger.error("Você informou um algoritmo inválido! Use: FIFO, SJF, ROUNDROBIN, GARANTIDO, LOTERIA");
+                System.exit(1);
+                return;
+            }
+
+            AlgorithmType algorithmSelectType = AlgorithmType.valueOf(algorithmSelect.toUpperCase(Locale.ROOT));
+            if (!AlgorithmType.isValidAlgorithmBySystem(systemType, algorithmSelectType)) {
+                Logger.error("O algoritmo informado não está disponível para o sistema em questão.");
+                System.exit(1);
+                return;
+            }
+
+            algorithmType = algorithmSelectType;
+        }
+
+        System.out.println("ARQUIVO: " + fileName);
+        System.out.println("SISTEMA: " + systemType);
+        System.out.println("ALGORITMO: " + algorithmType);
     }
 
 
