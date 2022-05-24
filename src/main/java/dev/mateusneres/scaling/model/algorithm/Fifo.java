@@ -21,4 +21,62 @@ public class Fifo extends Algorithm {
      * FIFO ALGORITHM
      *
      * */
+
+     /*
+
+     public static void FIFO() {
+		
+		Scanner in = new Scanner(System.in);
+		
+		int[] bt = new int[10];//burst time 
+		int[] wt = new int[10];//wainting time
+		int[] tat = new int[10];//turn around time
+		wt[0]=0;
+		//n = number of processs 
+		int n,avwt=0,avtat=0,i,j;
+		
+		System.out.println("Digite a quantidade de processos|no maximo 10");
+		n = in.nextInt();
+			
+		//burst values
+		System.out.println(" Digite o tempo de execução");
+		for(i = 0; i < n; i++) {
+				System.out.println("P[" + i + 1 + "]" );
+				bt[i] = in.nextInt();
+			}
+		
+		//waiting time
+		for(i=1;i<n;i++){
+	        wt[i]=0;
+	        
+	        for(j = 0; j< i; j++)
+	            wt[i]+=bt[j];
+	    }
+		
+		System.out.println("#####################################################################################################");
+		System.out.println("\\nProcesso\\t      tempo de execução\\t       Tempo de resposta\\t          Tempo de espera\\n");
+		System.out.println("#####################################################################################################"); 
+	    // turnaround time
+	    for(i=0;i<n;i++){
+	        
+	    	tat[i] = bt[i]+wt[i];
+	        avwt += wt[i];
+	        avtat += tat[i];
+	        
+	        //System.out.println("P [ " + i + i +" ] " + " \t\t\t " + bt[i] + " \t\t\t " + tat[i] + "\t\t\t" + wt[i]);
+	        System.out.print("\n  " + (i + 1)+"\t\t\t" + bt[i] + "\t\t\t"+ tat [i] + "\t\t\t" + wt[i] + "\n"); 
+	     
+	    }
+	 
+	    avwt/=i;
+	    avtat/=i;
+	    
+	    System.out.println("\nTempo médio de espera = " + avwt);
+	    System.out.println("\nTempo médio de retorno = " + avtat);
+	    
+	}
+
+     
+     
+      */
 }
