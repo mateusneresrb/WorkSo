@@ -9,6 +9,7 @@ import lombok.Setter;
 
 import java.util.List;
 
+import java.io.IOException;
 /*
  * INTERACTIVE ALGORITHM
  * */
@@ -26,7 +27,7 @@ public class RoundRobin extends Algorithm {
     /* ROUND ROBIN METHODS */
     //Fiz o escalonador como metodo mas está rodando perfeitamente,basta estanciar -Leonardo
    /*
-    public static void roundRobin() {
+    public static void roundRobin() throws IOException {
 		 
 			Scanner in = new Scanner(System.in); 
 		
@@ -92,7 +93,8 @@ public class RoundRobin extends Algorithm {
 					tme = tme + wt[i];  
 					tmr = tmr + tat[i];  
 					
-					System.out.print("\n  " + (i + 1)+"\t\t\t" + bt[i] + "\t\t\t"+ tat [i] + "\t\t\t" + wt[i] + "\n");  
+					System.out.print("\n  " + (i + 1)+"\t\t\t" + bt[i] + "\t\t\t"+ tat [i] + "\t\t\t" + wt[i] + "\n");
+					System.in.read();
 				}  
 
 					tme = tme/n;  

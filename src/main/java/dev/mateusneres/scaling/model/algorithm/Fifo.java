@@ -7,6 +7,7 @@ import dev.mateusneres.scaling.types.SystemType;
 
 import java.util.List;
 
+import java.io.IOException;
 /*
  * BATCH ALGORITHM
  * */
@@ -24,7 +25,7 @@ public class Fifo extends Algorithm {
 
      /*
 
-     public static void FIFO() {
+     public static void FIFO() throws IOException{
 		
 		Scanner in = new Scanner(System.in);
 		
@@ -65,7 +66,7 @@ public class Fifo extends Algorithm {
 	        
 	        //System.out.println("P [ " + i + i +" ] " + " \t\t\t " + bt[i] + " \t\t\t " + tat[i] + "\t\t\t" + wt[i]);
 	        System.out.print("\n  " + (i + 1)+"\t\t\t" + bt[i] + "\t\t\t"+ tat [i] + "\t\t\t" + wt[i] + "\n"); 
-	     
+	     	System.in.read();
 	    }
 	 
 	    avwt/=i;
