@@ -61,4 +61,5 @@ public enum AlgorithmType {
 
         return ROUNDROBIN;
     }
+
 }

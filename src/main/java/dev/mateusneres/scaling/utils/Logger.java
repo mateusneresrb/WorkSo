@@ -1,16 +1,14 @@
 package dev.mateusneres.scaling.utils;
 
 
-import java.util.logging.Logger;
-
-public class LoggerUtil {
+public class Logger {
 
     public static void info(String message) {
-        Logger.getGlobal().info(message);
+        System.out.println("[INFO] " + message);
     }
 
     public static void error(String message) {
-        Logger.getGlobal().severe(message);
+        System.out.println("[ERROR]: " + message);
     }
 
 }

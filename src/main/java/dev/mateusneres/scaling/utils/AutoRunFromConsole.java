@@ -4,7 +4,6 @@ import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
 import java.security.CodeSource;
-import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -117,6 +116,8 @@ final public class AutoRunFromConsole {
         }
 
         if (isRunningInConsole()) {
+            Logger.error("Você não informou o número mínimo de argumentos.");
+            Logger.error("Argumentos disponíveis: -p <arquivo> -a <algoritmo> -s <lotes|interativo>");
             return;
         }
 
@@ -144,11 +145,12 @@ final public class AutoRunFromConsole {
     private static void startExecutableInConsole(final String executableName, final boolean stayOpenAfterEnd) {
         String launchString = null;
 
-        if(getOsType() == OSType.WINDOWS) {
+        if (getOsType() == OSType.WINDOWS) {
             if (stayOpenAfterEnd) {
-                launchString = "cmd /c start cmd /k java -jar \"" + executableName + "\""; // No, using /k directly here DOES NOT do the trick.
+                launchString = "cmd /c start cmd /k java -jar \"" + executableName + "\" -menu"; // No, using /k directly here DOES NOT do the trick.
             } else {
-                launchString = "cmd /c start java -jar \"" + executableName + "\"";
+                System.out.println("EXECUTABLE NAME: " + executableName);
+                launchString = "cmd /c start java -jar \"" + executableName + "\" -menu";
             }
         }
 
@@ -249,11 +251,4 @@ final public class AutoRunFromConsole {
         final File file = new File(candidateName);
         return file.exists() && file.isFile();
     }
-
-
-    public static void main(final String[] args) {
-
-        AutoRunFromConsole.runYourselfInConsole(true);
-    }
-
 }
