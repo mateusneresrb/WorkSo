@@ -23,11 +23,10 @@ public class Sjf extends Algorithm {
     }
 
     public void runAlgorithm(boolean steps) {
-        headerAlgoritghm();
 
-        int timeExecution = 0;
-        int pressEnter = 0;
+        int pressEnter = 1;
         List<Process> processList = getProcessList();
+        int[] timeExecution = new int[processList.size() + 1];
         processList.sort(Comparator.comparingInt(Process::getTimeExecution));
 
         Logger.info("RESULTADO:");
@@ -44,24 +43,33 @@ public class Sjf extends Algorithm {
             Logger.info("ORDEM DE EXECUCAO:");
             Logger.info(getProcessList().stream().map(Process::getProcessName).collect(Collectors.joining("->")));
 
-            //DE ONDE VEM O NUMERO 0 DO EXEMPLO;
             Scanner scanner = new Scanner(System.in);
-            Logger.info("0");
+            Logger.info("0"); //DE ONDE VEM O NUMERO 0 DO EXEMPLO;
 
             do {
-                scanner.nextLine();
-                pressEnter++;
-
                 StringBuilder stringBuilder = new StringBuilder();
                 stringBuilder.append("0");
-                for (int i = 0; i < pressEnter; i++) {
-                    stringBuilder.append("--").append(getProcessList().get(i).getProcessName()).append("--").append(getProcessList().get(i).getTimeExecution() + timeExecution);
-                    timeExecution += getProcessList().get(i).getTimeExecution();
-                }
-                Logger.info(stringBuilder.toString());
-            } while (pressEnter < getProcessList().size());
 
-            int tempoMedioRetorno = timeExecution / getProcessList().size();
+                int x = 0;
+                for (Process process : getProcessList()) {
+                    if (x >= pressEnter) break;
+                    stringBuilder.append("--").append(process.getProcessName()).append("--").append(process.getTimeExecution() + timeExecution[x]);
+
+                    timeExecution[pressEnter] = process.getTimeExecution() + timeExecution[(pressEnter - 1)];
+                    x++;
+                }
+
+                scanner.nextLine();
+                pressEnter++;
+                Logger.info(stringBuilder.toString());
+            } while (pressEnter <= getProcessList().size());
+
+            int totalExecutionTime = 0;
+            for (int i : timeExecution) {
+                totalExecutionTime += i;
+            }
+
+            int tempoMedioRetorno = totalExecutionTime / getProcessList().size();
             int tempoMedioRetornoSeg = tempoMedioRetorno / 1000;
             int tempoMedioRetornoMin = tempoMedioRetornoSeg / 60;
 
@@ -70,21 +78,28 @@ public class Sjf extends Algorithm {
             return;
         }
 
+
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("0");
 
+        int count = 1;
         for (Process process : getProcessList()) {
-            stringBuilder.append("--").append(process.getProcessName()).append("--").append(process.getTimeExecution() + timeExecution);
-            timeExecution += process.getTimeExecution();
+            stringBuilder.append("--").append(process.getProcessName()).append("--").append(process.getTimeExecution() + timeExecution[count - 1]);
+            timeExecution[count] = process.getTimeExecution() + timeExecution[count - 1];
+            count++;
         }
 
         Logger.info(stringBuilder.toString());
 
-        int tempoMedioRetorno = timeExecution / getProcessList().size();
+        int totalExecutionTime = 0;
+        for (int i : timeExecution) {
+            totalExecutionTime += i;
+        }
+
+        int tempoMedioRetorno = totalExecutionTime / getProcessList().size();
         int tempoMedioRetornoSeg = tempoMedioRetorno / 1000;
         int tempoMedioRetornoMin = tempoMedioRetornoSeg / 60;
 
-        /* CORRIGIR TEMPO MEDIO DE RETORNO */
         Logger.info("TEMPO MÉDIO DE RETORNO:");
         Logger.info(tempoMedioRetorno + "ms->" + tempoMedioRetornoSeg + "s->" + tempoMedioRetornoMin + "m");
     }
