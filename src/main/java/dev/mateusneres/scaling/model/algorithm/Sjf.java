@@ -4,91 +4,89 @@ import dev.mateusneres.scaling.model.Algorithm;
 import dev.mateusneres.scaling.model.Process;
 import dev.mateusneres.scaling.types.AlgorithmType;
 import dev.mateusneres.scaling.types.SystemType;
+import dev.mateusneres.scaling.utils.Logger;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.Scanner;
+import java.util.stream.Collectors;
 
 /*
- * BATCH ALGORITHM
+ * [ BATCH ALGORITHM ]
+ * Shortest Job First
  * */
 public class Sjf extends Algorithm {
 
 
-	public Sjf(AlgorithmType algorithmType, SystemType systemType, List<Process> processList) {
-		super(algorithmType, systemType, processList);
-	}
+    public Sjf(AlgorithmType algorithmType, SystemType systemType, List<Process> processList) {
+        super(algorithmType, systemType, processList);
+    }
 
-//	public static void TrabalhoMaisCurtoPrimeiro(){
-//
-//		Scanner in = new Scanner(System.in);
-//		System.out.println ("Digite a quantum:");
-//
-//		int n = in.nextInt();
-//		int pid[] = new int[n];
-//		int at[] = new int[n]; //  arrival time
-//		int bt[] = new int[n]; // bt  burst time
-//		int ct[] = new int[n]; // ct complete time
-//		int ta[] = new int[n]; // ta  turn around time
-//		int wt[] = new int[n];  //wt  waiting time
-//		int f[] = new int[n];  // f means it is flag it checks process is completed or not
-//		int st=0, tot=0;
-//
-//		float avgwt=0, avgta=0;
-//
-//		for(int i=0;i<n;i++){
-//
-//			System.out.println ("enter process " + (i+1) + " arrival time:");
-//			at[i] = in.nextInt();
-//
-//			System.out.println ("enter process " + (i+1) + " brust time:");
-//			bt[i] = in.nextInt();
-//			pid[i] = i+1;
-//			f[i] = 0;
-//		}
-//
-//		boolean a = true;
-//
-//		while(true){
-//			int c=n, min=999;
-//			if (tot == n) // total no of process = completed process loop will be terminated
-//				break;
-//			for (int i=0; i<n; i++){
-///*
-//* If i'th process arrival time <= system time and its flag=0 and burst<min
-//* That process will be executed first
-//*/
-//				if ((at[i] <= st) && (f[i] == 0) && (bt[i]<min)){
-//
-//					min=bt[i];
-//					c=i;
-//				}
-//}
-///* If c==n means c value can not updated because no process arrival time< system time so we increase the system time */
-//			if (c==n)
-//				st++;
-//				else{
-//					ct[c]=st+bt[c];
-//					st+=bt[c];
-//					ta[c]=ct[c]-at[c];
-//					wt[c]=ta[c]-bt[c];
-//					f[c]=1;
-//					tot++;
-//				}
-//}
-//
-//		System.out.println("\npid  arrival brust  complete turn waiting");
-//
-//		for(int i=0;i<n;i++){
-//
-//			avgwt+= wt[i];
-//			avgta+= ta[i];
-//
-//			System.out.println(pid[i]+"\t"+at[i]+"\t"+bt[i]+"\t"+ct[i]+"\t"+ta[i]+"\t"+wt[i]);
-//}
-//		System.out.println ("\naverage tat is "+ (float)(avgta/n));
-//		System.out.println ("average wt is "+ (float)(avgwt/n));
-//		in.close();
-//	}
+    public void runAlgorithm(boolean steps) {
+        headerAlgoritghm();
 
+        int timeExecution = 0;
+        int pressEnter = 0;
+        List<Process> processList = getProcessList();
+        processList.sort(Comparator.comparingInt(Process::getTimeExecution));
 
+        Logger.info("RESULTADO:");
+        Logger.info("SISTEMA EM LOTES");
+        Logger.info("ESCALONAMENTO TAREFA MAIS CURTA PRIMEIRO\n");
+
+        if (steps) {
+            Logger.info("TEMPO DE SUBMISSÃO:");
+            getProcessList().forEach(process -> Logger.info(process.getProcessName() + "=" + process.getTimeSubmission() + "ms"));
+
+            Logger.info("TEMPO DE EXECUCAO:");
+            getProcessList().forEach(process -> Logger.info(process.getProcessName() + "=" + process.getTimeExecution() + "ms"));
+
+            Logger.info("ORDEM DE EXECUCAO:");
+            Logger.info(getProcessList().stream().map(Process::getProcessName).collect(Collectors.joining("->")));
+
+            //DE ONDE VEM O NUMERO 0 DO EXEMPLO;
+            Scanner scanner = new Scanner(System.in);
+            Logger.info("0");
+
+            do {
+                scanner.nextLine();
+                pressEnter++;
+
+                StringBuilder stringBuilder = new StringBuilder();
+                stringBuilder.append("0");
+                for (int i = 0; i < pressEnter; i++) {
+                    stringBuilder.append("--").append(getProcessList().get(i).getProcessName()).append("--").append(getProcessList().get(i).getTimeExecution() + timeExecution);
+                    timeExecution += getProcessList().get(i).getTimeExecution();
+                }
+                Logger.info(stringBuilder.toString());
+            } while (pressEnter < getProcessList().size());
+
+            int tempoMedioRetorno = timeExecution / getProcessList().size();
+            int tempoMedioRetornoSeg = tempoMedioRetorno / 1000;
+            int tempoMedioRetornoMin = tempoMedioRetornoSeg / 60;
+
+            Logger.info("TEMPO MÉDIO DE RETORNO:");
+            Logger.info(tempoMedioRetorno + "ms->" + tempoMedioRetornoSeg + "s->" + tempoMedioRetornoMin + "m");
+            return;
+        }
+
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("0");
+
+        for (Process process : getProcessList()) {
+            stringBuilder.append("--").append(process.getProcessName()).append("--").append(process.getTimeExecution() + timeExecution);
+            timeExecution += process.getTimeExecution();
+        }
+
+        Logger.info(stringBuilder.toString());
+
+        int tempoMedioRetorno = timeExecution / getProcessList().size();
+        int tempoMedioRetornoSeg = tempoMedioRetorno / 1000;
+        int tempoMedioRetornoMin = tempoMedioRetornoSeg / 60;
+
+        /* CORRIGIR TEMPO MEDIO DE RETORNO */
+        Logger.info("TEMPO MÉDIO DE RETORNO:");
+        Logger.info(tempoMedioRetorno + "ms->" + tempoMedioRetornoSeg + "s->" + tempoMedioRetornoMin + "m");
+    }
 
 }

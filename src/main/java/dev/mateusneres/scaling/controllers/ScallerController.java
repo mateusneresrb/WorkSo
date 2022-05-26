@@ -32,7 +32,7 @@ public class ScallerController {
 
         if (algorithmType == AlgorithmType.SJF) {
             Sjf sjf = new Sjf(algorithmType, systemType, processList);
-            Logger.info(sjf.getSystemType().name());
+            sjf.runAlgorithm(scaller.isSteps());
             return;
         }
 
