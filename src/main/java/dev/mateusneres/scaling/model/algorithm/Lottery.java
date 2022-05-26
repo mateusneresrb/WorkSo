@@ -27,26 +27,25 @@ public class Lottery extends Algorithm {
      *  LOTERRY ALGORITHM
 feito por min
     public static void lottery(){
-	
-		Scanner in = new Scanner(System.in);
+	Scanner in = new Scanner(System.in);
 		Random rand = new Random();
 		
-		int n,i,j,k, temp = 65, flag = 0,q = 0,pos;
+		int n,i,j,k, flag = 0,q = 0,pos;
+        int temp = 65;
 		int time = 0, quantum =1, tbt = 0, z = 0;
 		
 		char[] process = new char[10];
 		int[] bt = new int[10];// burst
 		int[] priority = new int[10];
-		int[] lottery = new int[10][10];
+		int[][] lottery = new int[10][10];
 		int[] ticket = new int[10];
 		
 		System.out.println("Digite a quantidade de processos| maximo 10");
-		n = in.nextIn();
-
+		n = in.nextInt();
 	
 		for(i=0;i<n;i++){
 			
-			process[i] = temp;
+			process[i] = (char) temp;
 			temp += 1;
 		}
 	
@@ -56,12 +55,11 @@ feito por min
 		System.out.println("\n Enter The Brust Time For Process " + process[i]);
 		bt[i] = in.nextInt();
 		
-		printf("\n Digite a prioridade para o processo" + process[i] + n);
-		priority = in.nextInt();
+		System.out.println("\n Digite a prioridade para o processo" + process[i] + n);
+		priority[i] = in.nextInt();
 		
 	}
 	
-
     //Olha o sorteio
 	for(i=0;i<n;i++){
         
@@ -70,12 +68,12 @@ feito por min
 		for(j=i+1;j<n;j++){
             
 			if(priority[j] < priority[pos])
-                pos=j;
+                pos = j;
         }
  
         temp = process[i];
         process[i] = process[pos];
-        process[pos] = temp;
+        process[pos] = (char) temp;
  
         temp = bt[i];
         bt[i] = bt[pos];
@@ -89,7 +87,7 @@ feito por min
 			flag = 1;
 		}
     }
-    Sytem.out.println("###########################################################");
+    System.out.println("###########################################################");
     System.out.println(" Prioridade \t\t\t  Processo  \t\t\t  execução ");
 	
 	for(i = 0; i < n; i++){
@@ -102,19 +100,8 @@ feito por min
 	// atribui mais de um numero
 	int p=1,m_ticket=0;
 	System.out.println(" Prioridade \t\t\t  Processo  \t\t\t  execução \t\t\t loteria \t\t\t ticket ");
-	
-	for(i=0;i<n;i++){
 		
-		lottery[i] = (bt[i]/quantum) + (n-priority[i]);
-		for (z=0;z<lottery[i];z++){
-			
-            ticket[i][z] = p++;
-            m_ticket = p;
-        
-		}
-      			
-		System.out.println(priority[i] + "\t\t\t" + process[i] + "\t\t \t " + bt[i] + "\t\t\t " + lottery[i]);
-		
+		//
 		for(z=0 ; z<lottery[i]; z++){
 			
 			if(ticket[i][z]<10){
@@ -170,8 +157,5 @@ feito por min
  }
 
 
-
-     * */
-
-    
 }
+     * */
