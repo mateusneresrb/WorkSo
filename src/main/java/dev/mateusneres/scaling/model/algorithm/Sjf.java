@@ -6,6 +6,7 @@ import dev.mateusneres.scaling.types.AlgorithmType;
 import dev.mateusneres.scaling.types.SystemType;
 import dev.mateusneres.scaling.utils.Logger;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Scanner;
@@ -23,11 +24,15 @@ public class Sjf extends Algorithm {
     }
 
     public void runAlgorithm(boolean steps) {
-
-        int pressEnter = 1;
         List<Process> processList = getProcessList();
-        int[] timeExecution = new int[processList.size() + 1];
         processList.sort(Comparator.comparingInt(Process::getTimeExecution));
+
+        int timeAllProcess = processList.stream().map(Process::getTimeExecution).reduce(0, Integer::sum);
+
+        List<Process> processListReady = new ArrayList<>();
+        List<Process> processListFinished = new ArrayList<>();
+        Process processExec = null; //PROCESSO EM EXECUÇÃO
+
 
         Logger.info("RESULTADO:");
         Logger.info("SISTEMA EM LOTES");
@@ -44,30 +49,50 @@ public class Sjf extends Algorithm {
             Logger.info(getProcessList().stream().map(Process::getProcessName).collect(Collectors.joining("->")));
 
             Scanner scanner = new Scanner(System.in);
-            Logger.info("0"); //DE ONDE VEM O NUMERO 0 DO EXEMPLO;
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.append("0");
 
-            do {
-                StringBuilder stringBuilder = new StringBuilder();
-                stringBuilder.append("0");
+            int time = -1;
+            while (time < timeAllProcess) {
+                time++;
 
-                int x = 0;
                 for (Process process : getProcessList()) {
-                    if (x >= pressEnter) break;
-                    stringBuilder.append("--").append(process.getProcessName()).append("--").append(process.getTimeExecution() + timeExecution[x]);
+                    /*CHEGOU NO TEMPO DE ENTRADA DE ALGUM PROCESSO*/
+                    if (process.getTimeSubmission() == time) {
+                        if (processExec == null) {
+                            processExec = process;
+                            continue;
+                        }
 
-                    timeExecution[pressEnter] = process.getTimeExecution() + timeExecution[(pressEnter - 1)];
-                    x++;
+                        processListReady.add(process);
+                        processListReady.sort(Comparator.comparingInt(Process::getTimeExecution));
+                        continue;
+                    }
+
+                    /* NÃO TEM NENHUM PROCESSO EM EXECUCAO */
+                    if (processExec == null) {
+                        if (processListReady.isEmpty()) continue;
+
+                        processExec = processListReady.get(0);
+                        processExec.setTimeReady(time);
+
+                        processListReady.remove(0);
+                        continue;
+                    }
+
+                    /* ACABOU O TEMPO DE EXECUCAO DO PROCESSO */
+                    if ((processExec.getTimeReady() + processExec.getTimeExecution()) == time) {
+                        scanner.nextLine();
+                        processListFinished.add(processExec);
+
+                        stringBuilder.append("--").append(processExec.getProcessName()).append("--").append(processExec.getTimeReady() + processExec.getTimeExecution());
+                        Logger.info(stringBuilder.toString());
+                        processExec = null;
+                    }
                 }
-
-                scanner.nextLine();
-                pressEnter++;
-                Logger.info(stringBuilder.toString());
-            } while (pressEnter <= getProcessList().size());
-
-            int totalExecutionTime = 0;
-            for (int i : timeExecution) {
-                totalExecutionTime += i;
             }
+
+            int totalExecutionTime = processListFinished.stream().map(process -> (process.getTimeReady() + process.getTimeExecution())).reduce(0, Integer::sum);
 
             int tempoMedioRetorno = totalExecutionTime / getProcessList().size();
             int tempoMedioRetornoSeg = tempoMedioRetorno / 1000;
@@ -78,23 +103,54 @@ public class Sjf extends Algorithm {
             return;
         }
 
+        /* O PROXIMO DA FILE É BASEADO PELO TEMPO DE EXECUCAO */
 
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("0");
 
-        int count = 1;
-        for (Process process : getProcessList()) {
-            stringBuilder.append("--").append(process.getProcessName()).append("--").append(process.getTimeExecution() + timeExecution[count - 1]);
-            timeExecution[count] = process.getTimeExecution() + timeExecution[count - 1];
-            count++;
+        int time = -1;
+        while (time < timeAllProcess) {
+            time++;
+
+            for (Process process : getProcessList()) {
+
+                /*CHEGOU NO TEMPO DE ENTRADA DE ALGUM PROCESSO*/
+                if (process.getTimeSubmission() == time) {
+                    if (processExec == null) {
+                        processExec = process;
+                        continue;
+                    }
+
+                    processListReady.add(process);
+                    processListReady.sort(Comparator.comparingInt(Process::getTimeExecution));
+                    continue;
+                }
+
+                /* NÃO TEM NENHUM PROCESSO EM EXECUCAO */
+                if (processExec == null) {
+                    if (processListReady.isEmpty()) continue;
+
+                    processExec = processListReady.get(0);
+                    processExec.setTimeReady(time);
+
+                    processListReady.remove(0);
+                    continue;
+                }
+
+                /* ACABOU O TEMPO DE EXECUCAO DO PROCESSO */
+                if ((processExec.getTimeReady() + processExec.getTimeExecution()) == time) {
+
+                    processListFinished.add(processExec);
+
+                    stringBuilder.append("--").append(processExec.getProcessName()).append("--").append(processExec.getTimeReady() + processExec.getTimeExecution());
+                    processExec = null;
+                }
+            }
         }
 
         Logger.info(stringBuilder.toString());
 
-        int totalExecutionTime = 0;
-        for (int i : timeExecution) {
-            totalExecutionTime += i;
-        }
+        int totalExecutionTime = processListFinished.stream().map(process -> (process.getTimeReady() + process.getTimeExecution())).reduce(0, Integer::sum);
 
         int tempoMedioRetorno = totalExecutionTime / getProcessList().size();
         int tempoMedioRetornoSeg = tempoMedioRetorno / 1000;

@@ -1,17 +1,19 @@
 package dev.mateusneres.scaling.model;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
 
 @Data
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class Process {
 
-    private String username;
-    private String processName;
-    private int processID;
-    private int priority;
-    private int timeSubmission;
-    private int timeExecution;
+    private final String username;
+    private final String processName;
+    private final int processID;
+    private final int priority;
+    private final int timeSubmission;
+    private int timeReady;
+    private final int timeExecution;
+
 
 }
