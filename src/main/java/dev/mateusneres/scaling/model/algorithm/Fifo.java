@@ -30,11 +30,11 @@ public class Fifo extends Algorithm {
 		Scanner in = new Scanner(System.in);
 		
 		int[] bt = new int[10];//burst time 
-		int[] wt = new int[10];//wainting time
-		int[] tat = new int[10];//turn around time
-		wt[0]=0;
+		int[] wt = new int[10];//wainting time - tempo de espera
+		int[] tat = new int[10];//turn around time - tempo de resposta
+		wt[0]=0; // tempo de espera
 		//n = number of processs 
-		int n,avwt=0,avtat=0,i,j;
+		int n,avwt=0,avtat=0,i,j;// i e j são as variaveis usadas no loop for
 		
 		System.out.println("Digite a quantidade de processos|no maximo 10");
 		n = in.nextInt();
@@ -46,7 +46,7 @@ public class Fifo extends Algorithm {
 				bt[i] = in.nextInt();
 			}
 		
-		//waiting time
+		//waiting time - tempo de espera
 		for(i=1;i<n;i++){
 	        wt[i]=0;
 	        
@@ -57,7 +57,8 @@ public class Fifo extends Algorithm {
 		System.out.println("#####################################################################################################");
 		System.out.println("\\nProcesso\\t      tempo de execução\\t       Tempo de resposta\\t          Tempo de espera\\n");
 		System.out.println("#####################################################################################################"); 
-	    // turnaround time
+	    
+		// turnaround time - tempo de resposta
 	    for(i=0;i<n;i++){
 	        
 	    	tat[i] = bt[i]+wt[i];
@@ -69,8 +70,8 @@ public class Fifo extends Algorithm {
 	     	System.in.read();
 	    }
 	 
-	    avwt/=i;
-	    avtat/=i;
+	    avwt/=i; //calculo do tempo medio de espera
+	    avtat/=i;//calculo do tempo medio de retorno
 	    
 	    System.out.println("\nTempo médio de espera = " + avwt);
 	    System.out.println("\nTempo médio de retorno = " + avtat);

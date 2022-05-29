@@ -47,8 +47,8 @@ public class RoundRobin extends Algorithm {
 
         int[] bt = new int[10]; //burst time
         int[] wt = new int[10]; //tempo de espera
-        int[] tat = new int[10];
-        int[] rem_bt = new int[10];
+        int[] tat = new int[10];//turn aroud time
+        int[] rem_bt = new int[10];//burts time restante/remanecente
 
         System.out.println("Digite o nome do processo");
         String processo = in.nextLine();
