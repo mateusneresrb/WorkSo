@@ -5,7 +5,6 @@ import dev.mateusneres.scaling.model.Scaller;
 import dev.mateusneres.scaling.model.algorithm.*;
 import dev.mateusneres.scaling.types.AlgorithmType;
 import dev.mateusneres.scaling.types.SystemType;
-import dev.mateusneres.scaling.utils.Logger;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -26,7 +25,7 @@ public class ScallerController {
         /* BATCH */
         if (algorithmType == AlgorithmType.FIFO) {
             Fifo fifo = new Fifo(algorithmType, systemType, processList);
-            Logger.info(fifo.getSystemType().name());
+            fifo.runAlgorithm(scaller.isSteps());
             return;
         }
 
