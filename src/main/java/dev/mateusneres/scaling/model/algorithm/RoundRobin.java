@@ -4,11 +4,13 @@ import dev.mateusneres.scaling.model.Algorithm;
 import dev.mateusneres.scaling.model.Process;
 import dev.mateusneres.scaling.types.AlgorithmType;
 import dev.mateusneres.scaling.types.SystemType;
+import dev.mateusneres.scaling.utils.Logger;
+import dev.mateusneres.scaling.utils.TableBuilder;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /*
  * INTERACTIVE ALGORITHM
@@ -25,160 +27,112 @@ public class RoundRobin extends Algorithm {
     }
 
     public void runAlgorithm(boolean steps) {
-        headerAlgoritghm();
+        List<Process> processList = getProcessList();
+        List<Process> processListReady = new ArrayList<>();
+        List<Process> processListFinished = new ArrayList<>();
+
+        Process processExec = null; //PROCESSO EM EXECUÇÃO
+
+        processList.sort(Comparator.comparingInt(Process::getTimeFinalExecution));
+
+        int timeAllProcess = processList.stream().map(Process::getTimeFinalExecution).reduce(0, Integer::sum);
+
+        Logger.info("RESULTADO:");
+        Logger.info("SISTEMA INTERATIVO");
+        Logger.info("ESCALONAMENTO ROUNDROBIN\n");
 
         if (steps) {
-            //LOOP AND WHILE ALL LIST;
-            return;
-        }
-        
+            Logger.info("TEMPO DE SUBMISSÃO:");
+            getProcessList().forEach(process -> Logger.info(process.getProcessName() + "=" + process.getTimeSubmission() + "ms"));
 
-    }
+            Logger.info("TEMPO DE EXECUCAO:");
+            getProcessList().forEach(process -> Logger.info(process.getProcessName() + "=" + process.getTimeFinalExecution() + "ms"));
 
-    /* ROUND ROBIN METHODS */
-    //Fiz o escalonador como metodo mas está rodando perfeitamente,basta estanciar -Leonardo
-
-    public static void main(String[] args) {
-
-        Scanner in = new Scanner(System.in);
-
-        int n, i, quantum, count = 0, temp, sq = 0;
-        float tme = 0, tmr = 0;
-
-        int[] bt = new int[10]; //burst time
-        int[] wt = new int[10]; //tempo de espera
-        int[] tat = new int[10];//turn aroud time
-        int[] rem_bt = new int[10];//burts time restante/remanecente
-
-        System.out.println("Digite o nome do processo");
-        String processo = in.nextLine();
-
-        System.out.print("Digite a quantidade de processos |no maximo 10 processos = ");
-        n = in.nextInt();
-
-        System.out.print("Digite o tempo de execução do processo\n");
-
-        for (i = 0; i < n; i++) {
-            System.out.print(processo + i + " = ");
-
-            bt[i] = in.nextInt(); //O TEMPO DE EXECUCAO
-            rem_bt[i] = bt[i]; //O TEMPO DE EXECUCAO
+            Logger.info("ORDEM DE EXECUCAO:");
+            Logger.info(getProcessList().stream().map(Process::getProcessName).collect(Collectors.joining("->")));
         }
 
-        System.out.print("Digite o quantum: ");
-        quantum = in.nextInt();
+        TableBuilder tableBuilder = new TableBuilder();
+        tableBuilder.setBorders(TableBuilder.Borders.FRAME).frame(true);
+        tableBuilder.addHeaders("Status", "Time", "Process Name (Exec)", "Process Ready", "Process Finished");
+        tableBuilder.addRowNames("!", "", "", "", "");
 
-        while (true) {
-            for (i = 0, count = 0; i < n; i++) { //N = NUMERO DE PROCESSOS
-                temp = quantum; //TEMP = QUANTUM
-                if (rem_bt[i] == 0) { //TEMPO DE EXECUCAO = 0 -> PULA PRO PROX
-                    count++;
+
+        Scanner scanner = new Scanner(System.in);
+        Logger.info("| Status\t|" + " Time \t|" + " Process Name (Exec)\t|" + " Process Ready\t|" + " Process Finished |");
+
+        List<List<String>> valuesTable = new ArrayList<>();
+
+        int time = -1;
+        while (time < (timeAllProcess * 4)) {
+            time++;
+
+            for (Process process : getProcessList()) {
+
+                /*CHEGOU NO TEMPO DE ENTRADA DE ALGUM PROCESSO*/
+                if (process.getTimeSubmission() == time) {
+                    if (processExec == null) {
+                        processExec = process;
+                        processExec.setTimeToPerform(time);
+                        valuesTable.add(Arrays.asList("+", time + "s", processExec.getProcessName(), processListReady.stream().map(Process::getProcessName).collect(Collectors.joining("->")), processListFinished.stream().map(Process::getProcessName).collect(Collectors.joining(","))));
+                        continue;
+                    }
+
+                    processListReady.add(process);
+                    valuesTable.add(Arrays.asList("+", time + "s", processExec.getProcessName(), processListReady.stream().map(Process::getProcessName).collect(Collectors.joining("->")), processListFinished.stream().map(Process::getProcessName).collect(Collectors.joining(","))));
                     continue;
                 }
-                if (rem_bt[i] > quantum)
-                    rem_bt[i] = rem_bt[i] - quantum; //TEMP DE EXECUCAO - QUANTUM
-                else if (rem_bt[i] >= 0) {
-                    temp = rem_bt[i];
-                    rem_bt[i] = 0;
+
+                if (processExec == null) continue;
+
+                /* SE O TEMPO QUE ELE TINHA QUE EXECUTAR - TEMPO QUE EXECUTOU FOR MENOR QUE 0*/
+                if ((processExec.getTimeFinalExecution() - processExec.getExecutionDuration()) <= 0) {
+                    if (processListFinished.contains(processExec)) continue;
+
+                    processListFinished.add(processExec);
+                    processExec = null;
+
+                    if (!processListReady.isEmpty()) {
+                        processExec = processListReady.get(0);
+                        processExec.setTimeToPerform(time);
+                        processListReady.remove(0);
+                    }
+
+                    valuesTable.add(Arrays.asList("-", time + "s", processExec != null ? processExec.getProcessName() : "", processListReady.stream().map(Process::getProcessName).collect(Collectors.joining("->")), processListFinished.stream().map(Process::getProcessName).collect(Collectors.joining(","))));
+                    continue;
                 }
-                sq = sq + temp; // SQ = QUANTUM
-                tat[i] = sq;
-            }
 
-            if (n == count) {
-                break;
-            }
+                /* O QUANTUM FOI FINALIZADO */
+                if ((time % quantum) == 0) {
+                    if (processExec.getTimeToPerform() == time) continue;
 
+                    processListReady.add(processExec);
+
+                    processExec = processListReady.get(0);
+                    processExec.setTimeToPerform(time);
+
+                    processListReady.remove(0);
+                    valuesTable.add(Arrays.asList(".", time + "s", processExec.getProcessName(), processListReady.stream().map(Process::getProcessName).collect(Collectors.joining("->")), processListFinished.stream().map(Process::getProcessName).collect(Collectors.joining(","))));
+
+                    if (steps) {
+                        scanner.nextLine();
+                        Logger.info("\t\t.\t\t" + time + "s\t\t" + processExec.getProcessName() + "\t\t" + processListReady.stream().map(Process::getProcessName).collect(Collectors.joining("->")) + "\t\t" + processListFinished.stream().map(Process::getProcessName).collect(Collectors.joining(",")));
+                    }
+                }
+
+            }
+            /* ADICIONA UM SEGUNDO NO TEMPO DE DURAÇÃO DO PROCESSO */
+            if (processExec != null) {
+                processExec.setExecutionDuration(processExec.getExecutionDuration() + 1);
+            }
         }
 
-        System.out.print("###################################################################################################");
-        System.out.print(" \nProcesso\t      tempo de execução\t       Tempo de resposta\t          Tempo de espera\n ");
-        System.out.print("###################################################################################################");
+        if (!steps) {
+            String[][] stringArray = valuesTable.stream().map(u -> u.toArray(new String[0])).toArray(String[][]::new);
+            tableBuilder.setValues(stringArray);
 
-        for (i = 0; i < n; i++) {
-
-            wt[i] = tat[i] - bt[i];
-            tme = tme + wt[i];
-            tmr = tmr + tat[i];
-
-            System.out.print("\n  " + (i + 1) + "\t\t\t" + bt[i] + "\t\t\t" + tat[i] + "\t\t\t" + wt[i] + "\n");
+            Logger.info("RESULTADO ROUND-ROBIN: (Quantum: " + quantum + ")\n Legenda: . Quantum | + Entrou | - Finalizou\n" + tableBuilder.build());
         }
-
-        tme = tme / n;
-        tmr = tmr / n;
-
-        System.out.println("\nTempo médio de espera = " + tme);
-        System.out.println("\nTempo médio de retorno = " + tmr);
     }
-
-
-    //Deixei comentado para não causar nenhum erro
-
-
-//codigo não reforado abaixo
-
-/*
-public class RoundRobin  {  
-public static void main(String args[])  {  
-int n,i,qt,count=0,temp,sq=0,bt[],wt[],tat[],rem_bt[]; float awt=0,atat=0;  
-	
-bt = new int[10];  
-wt = new int[10];  
-tat = new int[10];  
-rem_bt = new int[10];  
-
-Scanner s=new Scanner(System.in);  
-	
-System.out.print("Enter the number of process (maximum 10) = ");  
-n = s.nextInt();  
-	
-System.out.print("Enter the burst time of the process\n");  
-	for (i=0;i<n;i++) {  
-System.out.print("P"+i+" = ");   
-bt[i] = s.nextInt();  
-rem_bt[i] = bt[i];  
-		}		  
-
-	System.out.print("Enter the quantum time: ");  
-	qt = s.nextInt();  
-
-while(true) {  
-	for (i=0,count=0;i<n;i++){  
-		temp = qt;  
-		if(rem_bt[i] == 0){  
-		count++;  
-		continue;  
-}  
-if(rem_bt[i]>qt)  
-rem_bt[i]= rem_bt[i] - qt;  
-else  
-if(rem_bt[i]>=0)  
-{  
-temp = rem_bt[i];  
-rem_bt[i] = 0;  
-}  
-sq = sq + temp;  
-tat[i] = sq;  
-}  
-if(n == count)  
-break;  
-}  
-System.out.print("--------------------------------------------------------------------------------");  
-System.out.print("\nProcess\t      Burst Time\t       Turnaround Time\t          Waiting Time\n");  
-System.out.print("--------------------------------------------------------------------------------");  
-for(i=0;i<n;i++)  
-{  
-wt[i]=tat[i]-bt[i];  
-awt=awt+wt[i];  
-atat=atat+tat[i];  
-System.out.print("\n "+(i+1)+"\t "+bt[i]+"\t\t "+tat[i]+"\t\t "+wt[i]+"\n");  
-}  
-awt=awt/n;  
-atat=atat/n;  
-System.out.println("\nAverage waiting Time = "+awt+"\n");  
-System.out.println("Average turnaround time = "+atat);  
-}  
-}  
-*/
 
 }

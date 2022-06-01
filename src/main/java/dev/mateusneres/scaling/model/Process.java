@@ -12,8 +12,9 @@ public class Process {
     private final int processID;
     private final int priority;
     private final int timeSubmission;
-    private int timeReady;
-    private final int timeExecution;
+    private int timeToPerform; //Tempo que entrou para executar
+    private int executionDuration; //Tempo que o processo passou executando;
+    private final int timeFinalExecution; //Tempo final de execucao do processo
 
 
 }

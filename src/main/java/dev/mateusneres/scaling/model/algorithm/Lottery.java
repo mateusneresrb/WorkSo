@@ -4,10 +4,13 @@ import dev.mateusneres.scaling.model.Algorithm;
 import dev.mateusneres.scaling.model.Process;
 import dev.mateusneres.scaling.types.AlgorithmType;
 import dev.mateusneres.scaling.types.SystemType;
+import dev.mateusneres.scaling.utils.Logger;
+import dev.mateusneres.scaling.utils.TableBuilder;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /*
  * INTERACTIVE ALGORITHM
@@ -21,141 +24,117 @@ public class Lottery extends Algorithm {
     public Lottery(AlgorithmType algorithmType, SystemType systemType, List<Process> processList) {
         super(algorithmType, systemType, processList);
     }
-    
 
-    /*
-     *  LOTERRY ALGORITHM
-feito por min
-    public static void lottery(){
-	Scanner in = new Scanner(System.in);
-		Random rand = new Random();
-		
-		int n,i,j,k, flag = 0,q = 0,pos;
-        int temp = 65;
-		int time = 0, quantum =1, tbt = 0, z = 0;
-		
-		char[] process = new char[10];
-		int[] bt = new int[10];// burst
-		int[] priority = new int[10];
-		int[][] lottery = new int[10][10];
-		int[] ticket = new int[10];
-		
-		System.out.println("Digite a quantidade de processos| maximo 10");
-		n = in.nextInt();
-	
-		for(i=0;i<n;i++){
-			
-			process[i] = (char) temp;
-			temp += 1;
-		}
-	
-		
-		for(i=0;i<n;i++){
-		
-		System.out.println("\n Enter The Brust Time For Process " + process[i]);
-		bt[i] = in.nextInt();
-		
-		System.out.println("\n Digite a prioridade para o processo" + process[i] + n);
-		priority[i] = in.nextInt();
-		
-	}
-	
-    //Olha o sorteio
-	for(i=0;i<n;i++){
-        
-		pos = i;
-        
-		for(j=i+1;j<n;j++){
-            
-			if(priority[j] < priority[pos])
-                pos = j;
+
+    public void runAlgorithm(boolean steps) {
+        List<Process> processList = getProcessList();
+        List<Process> processListReady = new ArrayList<>();
+        List<Process> processListFinished = new ArrayList<>();
+
+        Process processExec = null; //PROCESSO EM EXECUÇÃO
+
+        processList.sort(Comparator.comparingInt(Process::getTimeFinalExecution));
+
+        int timeAllProcess = processList.stream().map(Process::getTimeFinalExecution).reduce(0, Integer::sum);
+
+        Logger.info("RESULTADO:");
+        Logger.info("SISTEMA INTERATIVO");
+        Logger.info("ESCALONAMENTO LOTERIA\n");
+
+        if (steps) {
+            Logger.info("TEMPO DE SUBMISSÃO:");
+            getProcessList().forEach(process -> Logger.info(process.getProcessName() + "=" + process.getTimeSubmission() + "ms"));
+
+            Logger.info("TEMPO DE EXECUCAO:");
+            getProcessList().forEach(process -> Logger.info(process.getProcessName() + "=" + process.getTimeFinalExecution() + "ms"));
+
+            Logger.info("ORDEM DE EXECUCAO:");
+            Logger.info(getProcessList().stream().map(Process::getProcessName).collect(Collectors.joining("->")));
         }
- 
-        temp = process[i];
-        process[i] = process[pos];
-        process[pos] = (char) temp;
- 
-        temp = bt[i];
-        bt[i] = bt[pos];
-        bt[pos] = temp;
- 
-        temp = priority[i];
-        priority[i] = priority[pos];
-        priority[pos] = temp;
-        
-        if(bt[i]<0){
-			flag = 1;
-		}
+
+        TableBuilder tableBuilder = new TableBuilder();
+        tableBuilder.setBorders(TableBuilder.Borders.FRAME).frame(true);
+        tableBuilder.addHeaders("Status", "Time", "Process Name (Exec)", "Process Ready", "Process Finished");
+
+        List<List<String>> valuesTable = new ArrayList<>();
+
+        Scanner scanner = new Scanner(System.in);
+        Logger.info("| Status\t|" + " Time \t|" + " Process Name (Exec)\t|" + " Process Ready\t|" + " Process Finished |");
+
+        int time = -1;
+        while (time < (timeAllProcess * 4)) {
+            time++;
+
+            for (Process process : getProcessList()) {
+
+                /*CHEGOU NO TEMPO DE ENTRADA DE ALGUM PROCESSO*/
+                if (process.getTimeSubmission() == time) {
+                    if (processExec == null) {
+                        processExec = process;
+                        processExec.setTimeToPerform(time);
+                        valuesTable.add(Arrays.asList("+", time + "s", processExec.getProcessName(), processListReady.stream().map(Process::getProcessName).collect(Collectors.joining("->")), processListFinished.stream().map(Process::getProcessName).collect(Collectors.joining(","))));
+                        continue;
+                    }
+
+                    processListReady.add(process);
+                    valuesTable.add(Arrays.asList("+", time + "s", processExec.getProcessName(), processListReady.stream().map(Process::getProcessName).collect(Collectors.joining("->")), processListFinished.stream().map(Process::getProcessName).collect(Collectors.joining(","))));
+                    continue;
+                }
+
+                if (processExec == null) continue;
+
+                /* SE O TEMPO QUE ELE TINHA QUE EXECUTAR - TEMPO QUE EXECUTOU FOR MENOR QUE 0*/
+                if ((processExec.getTimeFinalExecution() - processExec.getExecutionDuration()) <= 0) {
+                    if (processListFinished.contains(processExec)) continue;
+
+                    processListFinished.add(processExec);
+                    processExec = null;
+
+                    if (!processListReady.isEmpty()) {
+                        int random = new Random().nextInt(processListReady.size());
+                        processExec = processListReady.get(random);
+                        processExec.setTimeToPerform(time);
+
+                        processListReady.remove(random);
+                    }
+
+                    valuesTable.add(Arrays.asList("-", time + "s", processExec != null ? processExec.getProcessName() : "", processListReady.stream().map(Process::getProcessName).collect(Collectors.joining("->")), processListFinished.stream().map(Process::getProcessName).collect(Collectors.joining(","))));
+                    continue;
+                }
+
+                /* O QUANTUM FOI FINALIZADO */
+                if ((time % quantum) == 0) {
+                    if (processExec.getTimeToPerform() == time) continue;
+
+                    processListReady.add(processExec);
+
+                    int random = new Random().nextInt(processListReady.size());
+                    processExec = processListReady.get(random);
+                    processExec.setTimeToPerform(time);
+
+                    processListReady.remove(random);
+                    valuesTable.add(Arrays.asList(".", time + "s", processExec.getProcessName(), processListReady.stream().map(Process::getProcessName).collect(Collectors.joining("->")), processListFinished.stream().map(Process::getProcessName).collect(Collectors.joining(","))));
+
+                    if (steps) {
+                        scanner.nextLine();
+                        Logger.info("\t\t.\t\t" + time + "s\t\t" + processExec.getProcessName() + "\t\t" + processListReady.stream().map(Process::getProcessName).collect(Collectors.joining("->")) + "\t\t" + processListFinished.stream().map(Process::getProcessName).collect(Collectors.joining(",")));
+                    }
+                }
+
+            }
+            /* ADICIONA UM SEGUNDO NO TEMPO DE DURAÇÃO DO PROCESSO */
+            if (processExec != null) {
+                processExec.setExecutionDuration(processExec.getExecutionDuration() + 1);
+            }
+        }
+
+        if (!steps) {
+            String[][] stringArray = valuesTable.stream().map(u -> u.toArray(new String[0])).toArray(String[][]::new);
+            tableBuilder.setValues(stringArray);
+
+            Logger.info("RESULTADO LOTERIA: (Quantum: " + quantum + ")\n Legenda: . Quantum | + Entrou | - Finalizou\n" + tableBuilder.build());
+        }
     }
-    System.out.println("###########################################################");
-    System.out.println(" Prioridade \t\t\t  Processo  \t\t\t  execução ");
-	
-	for(i = 0; i < n; i++){
-		System.out.println(priority[i]  +"\t\t\t"  +process[i] +"\t\t\t"+bt[i]);
-		tbt = tbt + bt[i];
-	}
-	
-	System.out.println("\n##########  Quantum = 1  ###############\n");
-	
-	// atribui mais de um numero
-	int p=1,m_ticket=0;
-	System.out.println(" Prioridade \t\t\t  Processo  \t\t\t  execução \t\t\t loteria \t\t\t ticket ");
-		
-		//
-		for(z=0 ; z<lottery[i]; z++){
-			
-			if(ticket[i][z]<10){
-				
-				System.out.println(ticket[i][z]);
-			
-			}else{
-			
-				System.out.println(ticket[i][z]);
-			
-			}
-    	}   
-	}
-	
-	while(time != tbt){
-	
-	int winner = (rand()%m_ticket-1)+ 1;
-    for(i =0;i<n;i++)
-        for(z=0;z<lottery[i];z++)
-            if(ticket[i][z]==winner)
-                q=i;
-                
-    System.out.println("\n##########################################");
-    System.out.println("vencedor " + winner);
-    System.out.println("\n############################################");
-	
-	if ((bt[q]>0)){
-		
-        bt[q] -= quantum;
-        
-        if (bt[q]>0) {
-			
-            time += quantum;
-			
-        } 
-		else {
-            time += (bt[q] + quantum);
-        }
-		
-		if(bt[q]<0) {
-                bt[q]=0;
-        }
-		
-	    System.out.println("\n O processo que esta rodando " + process[q]);
-		System.out.println("\n########################################################################################");
-		System.out.println(" Tempo total " + time + " Tempo restante de execução " + bt[q] + " processo " + process[q] );
-       
-	}
-    else{
-    	System.out.println("Ocorreu algum problema");
-	}
-    
- }
-
-
 }
-     * */
+    
+

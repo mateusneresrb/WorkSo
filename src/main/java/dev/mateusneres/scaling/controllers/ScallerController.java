@@ -39,14 +39,14 @@ public class ScallerController {
         if (algorithmType == AlgorithmType.ROUNDROBIN) {
             RoundRobin roundRobin = new RoundRobin(algorithmType, systemType, processList);
             roundRobin.setQuantum(quantum);
-
+            roundRobin.runAlgorithm(scaller.isSteps());
             return;
         }
 
         if (algorithmType == AlgorithmType.LOTERIA) {
             Lottery lottery = new Lottery(algorithmType, systemType, processList);
             lottery.setQuantum(quantum);
-
+            lottery.runAlgorithm(scaller.isSteps());
             return;
         }
 

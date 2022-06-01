@@ -9,18 +9,11 @@ import java.util.List;
 
 @Data
 @AllArgsConstructor
-public class Algorithm {
+public abstract class Algorithm {
 
     private AlgorithmType algorithmType;
     private SystemType systemType;
     private List<Process> processList;
 
-//    public void headerAlgoritghm() {
-//        Logger.info("-------------------------------------------");
-//        Logger.info(" SISTEMA " + getSystemType().name());
-//        Logger.info(" ALGORITMO " + getAlgorithmType().name());
-//        Logger.info(" Nº PROCESSOS: " + getProcessList().size());
-//        Logger.info("-------------------------------------------");
-//    }
 
 }

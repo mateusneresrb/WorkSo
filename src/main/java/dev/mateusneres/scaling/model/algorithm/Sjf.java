@@ -25,14 +25,14 @@ public class Sjf extends Algorithm {
 
     public void runAlgorithm(boolean steps) {
         List<Process> processList = getProcessList();
-        processList.sort(Comparator.comparingInt(Process::getTimeExecution));
-
-        int timeAllProcess = processList.stream().map(Process::getTimeExecution).reduce(0, Integer::sum);
-
         List<Process> processListReady = new ArrayList<>();
         List<Process> processListFinished = new ArrayList<>();
+
         Process processExec = null; //PROCESSO EM EXECUÇÃO
 
+        processList.sort(Comparator.comparingInt(Process::getTimeFinalExecution));
+
+        int timeAllProcess = processList.stream().map(Process::getTimeFinalExecution).reduce(0, Integer::sum);
 
         Logger.info("RESULTADO:");
         Logger.info("SISTEMA EM LOTES");
@@ -43,68 +43,13 @@ public class Sjf extends Algorithm {
             getProcessList().forEach(process -> Logger.info(process.getProcessName() + "=" + process.getTimeSubmission() + "ms"));
 
             Logger.info("TEMPO DE EXECUCAO:");
-            getProcessList().forEach(process -> Logger.info(process.getProcessName() + "=" + process.getTimeExecution() + "ms"));
+            getProcessList().forEach(process -> Logger.info(process.getProcessName() + "=" + process.getTimeFinalExecution() + "ms"));
 
             Logger.info("ORDEM DE EXECUCAO:");
             Logger.info(getProcessList().stream().map(Process::getProcessName).collect(Collectors.joining("->")));
-
-            Scanner scanner = new Scanner(System.in);
-            StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.append("0");
-
-            int time = -1;
-            while (time < timeAllProcess) {
-                time++;
-
-                for (Process process : getProcessList()) {
-                    /*CHEGOU NO TEMPO DE ENTRADA DE ALGUM PROCESSO*/
-                    if (process.getTimeSubmission() == time) {
-                        if (processExec == null) {
-                            processExec = process;
-                            continue;
-                        }
-
-                        processListReady.add(process);
-                        processListReady.sort(Comparator.comparingInt(Process::getTimeExecution));
-                        continue;
-                    }
-
-                    /* NÃO TEM NENHUM PROCESSO EM EXECUCAO */
-                    if (processExec == null) {
-                        if (processListReady.isEmpty()) continue;
-
-                        processExec = processListReady.get(0);
-                        processExec.setTimeReady(time);
-
-                        processListReady.remove(0);
-                        continue;
-                    }
-
-                    /* ACABOU O TEMPO DE EXECUCAO DO PROCESSO */
-                    if ((processExec.getTimeReady() + processExec.getTimeExecution()) == time) {
-                        scanner.nextLine();
-                        processListFinished.add(processExec);
-
-                        stringBuilder.append("--").append(processExec.getProcessName()).append("--").append(processExec.getTimeReady() + processExec.getTimeExecution());
-                        Logger.info(stringBuilder.toString());
-                        processExec = null;
-                    }
-                }
-            }
-
-            int totalExecutionTime = processListFinished.stream().map(process -> (process.getTimeReady() + process.getTimeExecution())).reduce(0, Integer::sum);
-
-            int tempoMedioRetorno = totalExecutionTime / getProcessList().size();
-            int tempoMedioRetornoSeg = tempoMedioRetorno / 1000;
-            int tempoMedioRetornoMin = tempoMedioRetornoSeg / 60;
-
-            Logger.info("TEMPO MÉDIO DE RETORNO:");
-            Logger.info(tempoMedioRetorno + "ms->" + tempoMedioRetornoSeg + "s->" + tempoMedioRetornoMin + "m");
-            return;
         }
 
-        /* O PROXIMO DA FILE É BASEADO PELO TEMPO DE EXECUCAO */
-
+        Scanner scanner = new Scanner(System.in);
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("0");
 
@@ -122,7 +67,7 @@ public class Sjf extends Algorithm {
                     }
 
                     processListReady.add(process);
-                    processListReady.sort(Comparator.comparingInt(Process::getTimeExecution));
+                    processListReady.sort(Comparator.comparingInt(Process::getTimeFinalExecution));
                     continue;
                 }
 
@@ -131,33 +76,40 @@ public class Sjf extends Algorithm {
                     if (processListReady.isEmpty()) continue;
 
                     processExec = processListReady.get(0);
-                    processExec.setTimeReady(time);
+                    processExec.setTimeToPerform(time);
 
                     processListReady.remove(0);
                     continue;
                 }
 
                 /* ACABOU O TEMPO DE EXECUCAO DO PROCESSO */
-                if ((processExec.getTimeReady() + processExec.getTimeExecution()) == time) {
-
+                if ((processExec.getTimeToPerform() + processExec.getTimeFinalExecution()) == time) {
                     processListFinished.add(processExec);
 
-                    stringBuilder.append("--").append(processExec.getProcessName()).append("--").append(processExec.getTimeReady() + processExec.getTimeExecution());
+                    stringBuilder.append("--").append(processExec.getProcessName()).append("--").append(processExec.getTimeToPerform() + processExec.getTimeFinalExecution());
+
+                    if (steps) {
+                        scanner.nextLine();
+                        Logger.info(stringBuilder.toString());
+                    }
+
                     processExec = null;
                 }
             }
         }
 
-        Logger.info(stringBuilder.toString());
+        if (!steps) {
+            Logger.info(stringBuilder.toString());
+        }
 
-        int totalExecutionTime = processListFinished.stream().map(process -> (process.getTimeReady() + process.getTimeExecution())).reduce(0, Integer::sum);
+        int totalExecutionTime = processListFinished.stream().map(process -> (process.getTimeToPerform() + process.getTimeFinalExecution())).reduce(0, Integer::sum);
 
-        int tempoMedioRetorno = totalExecutionTime / getProcessList().size();
-        int tempoMedioRetornoSeg = tempoMedioRetorno / 1000;
-        int tempoMedioRetornoMin = tempoMedioRetornoSeg / 60;
+        int timeReturnAverage = totalExecutionTime / getProcessList().size();
+        int timeReturnAverageSeg = timeReturnAverage / 1000;
+        int timeReturnAverageMin = timeReturnAverageSeg / 60;
 
         Logger.info("TEMPO MÉDIO DE RETORNO:");
-        Logger.info(tempoMedioRetorno + "ms->" + tempoMedioRetornoSeg + "s->" + tempoMedioRetornoMin + "m");
+        Logger.info(timeReturnAverage + "ms->" + timeReturnAverageSeg + "s->" + timeReturnAverageMin + "m");
     }
 
 }
