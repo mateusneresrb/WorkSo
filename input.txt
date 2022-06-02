@@ -1,4 +1,5 @@
-Josue;A;0;0;103;1340
-Josue;B;1;0;235;605
-Josue;C;2;0;503;20
-Josue;D;3;0;650;700
+Josue;A;0;0;1;4
+Josue;B;1;0;5;4
+Josue;C;2;0;4;6
+Josue;D;3;0;0;3
+Josue;E;4;0;1;4

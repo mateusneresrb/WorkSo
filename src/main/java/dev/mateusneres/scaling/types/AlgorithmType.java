@@ -5,7 +5,7 @@ import java.util.Locale;
 public enum AlgorithmType {
 
     FIFO, SJF, ROUNDROBIN, GARANTIDO, LOTERIA;
-
+    
     public static boolean isValidAlgorithm(String algorithm) {
         switch (valueOf(algorithm.toUpperCase(Locale.ROOT))) {
             case FIFO:

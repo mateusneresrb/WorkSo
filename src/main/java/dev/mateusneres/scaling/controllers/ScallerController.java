@@ -52,8 +52,7 @@ public class ScallerController {
 
         Guaranteed guaranteed = new Guaranteed(algorithmType, systemType, processList);
         guaranteed.setQuantum(quantum);
-
-
+        guaranteed.runAlgorithm(scaller.isSteps());
     }
 
 }

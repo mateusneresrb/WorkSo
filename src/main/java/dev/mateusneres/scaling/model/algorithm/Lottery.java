@@ -59,7 +59,9 @@ public class Lottery extends Algorithm {
         List<List<String>> valuesTable = new ArrayList<>();
 
         Scanner scanner = new Scanner(System.in);
-        Logger.info("| Status\t|" + " Time \t|" + " Process Name (Exec)\t|" + " Process Ready\t|" + " Process Finished |");
+        if (steps) {
+            Logger.info("| Status\t|" + " Time \t|" + " Process Name (Exec)\t|" + " Process Ready\t|" + " Process Finished |");
+        }
 
         int time = -1;
         while (time < (timeAllProcess * 4)) {

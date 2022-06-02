@@ -55,12 +55,12 @@ public class RoundRobin extends Algorithm {
         TableBuilder tableBuilder = new TableBuilder();
         tableBuilder.setBorders(TableBuilder.Borders.FRAME).frame(true);
         tableBuilder.addHeaders("Status", "Time", "Process Name (Exec)", "Process Ready", "Process Finished");
-        tableBuilder.addRowNames("!", "", "", "", "");
-
 
         Scanner scanner = new Scanner(System.in);
-        Logger.info("| Status\t|" + " Time \t|" + " Process Name (Exec)\t|" + " Process Ready\t|" + " Process Finished |");
-
+        if (steps) {
+            Logger.info("| Status\t|" + " Time \t|" + " Process Name (Exec)\t|" + " Process Ready\t|" + " Process Finished |");
+        }
+        
         List<List<String>> valuesTable = new ArrayList<>();
 
         int time = -1;

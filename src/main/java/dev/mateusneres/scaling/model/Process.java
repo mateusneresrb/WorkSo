@@ -13,6 +13,8 @@ public class Process {
     private final int priority;
     private final int timeSubmission;
     private int timeToPerform; //Tempo que entrou para executar
+    private int performedCount; //Quantas vezes que o processo executou; (Garantido)
+    private int performedCountFinished; //Quantas vezes que o processo executou; (Garantido)
     private int executionDuration; //Tempo que o processo passou executando;
     private final int timeFinalExecution; //Tempo final de execucao do processo
 
